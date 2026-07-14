@@ -954,16 +954,16 @@
       el.classList.add("selected");
       quickLook = { kind: "folder", key };
       const p0 = toStage(e.clientX, e.clientY);
-      // Convert right-based positioning to left on first drag
-      let ox, oy;
-      if (el.style.right && !el.style.left) {
-        ox = window.innerWidth - parseFloat(el.style.right) - el.offsetWidth;
-        el.style.left = ox + "px";
+      // Always ensure left-based positioning at drag start
+      if (el.style.right && el.style.right !== "auto") {
+        const r = parseFloat(el.style.right);
+        if (!isNaN(r)) {
+          el.style.left = (window.innerWidth - r - el.offsetWidth) + "px";
+        }
         el.style.right = "auto";
-      } else {
-        ox = parseFloat(el.style.left);
       }
-      oy = parseFloat(el.style.top);
+      const ox = parseFloat(el.style.left) || 0;
+      const oy = parseFloat(el.style.top) || 0;
       let dragging = false;
       function move(ev) {
         const p = toStage(ev.clientX, ev.clientY);
