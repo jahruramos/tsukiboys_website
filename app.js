@@ -296,7 +296,7 @@
 
   const KITS_FILES = [
     { name: "RAMOS DRUMKIT.zip", file: R2_BASE + "/kits/RAMOS DRUMKIT.zip" },
-    { name: "@AZTEK.ALS_DRUMKIT_SUNFLOWER_2.zip", file: R2_BASE + "/kits/%40AZTEK.ALS_DRUMKIT_SUNFLOWER_2.zip" },
+    { name: "@AZTEK.ALS_DRUMKIT_SUNFLOWER_2.zip", file: R2_BASE + "/kits/@AZTEK.ALS_DRUMKIT_SUNFLOWER_2.zip" },
   ];
 
   const FOLDERS = {
