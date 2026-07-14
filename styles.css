@@ -1057,7 +1057,7 @@ body {
 /* ---------- Spotify Widget ---------- */
 #spotify-widget {
   position: absolute;
-  bottom: 80px;
+  top: 44px;
   left: 20px;
   z-index: 10;
   border-radius: 12px;
