@@ -8,7 +8,7 @@ const crypto = require("crypto");
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 4599;
-const TRASH_PASSWORD = "tsukiboyzgang";
+const TRASH_PASSWORD = "gang2026";
 // In-memory only: restarting the server invalidates every unlocked session.
 const sessions = new Set();
 const TYPES = {
