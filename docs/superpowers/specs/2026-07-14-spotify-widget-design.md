@@ -16,18 +16,39 @@ already linked from the Spotify dock icon and Discord).
 ### Metadata: serverless endpoint (`api/spotify.js`)
 
 - New Vercel serverless function, same pattern as `api/unlock.js`.
-- Uses Spotify's Client Credentials OAuth flow (`SPOTIFY_CLIENT_ID` /
-  `SPOTIFY_CLIENT_SECRET` env vars, never exposed client-side).
-- Caches the app access token in memory (module-level var + expiry timestamp),
-  refreshes when expired — mirrors the in-memory `sessions` pattern already used
-  for the trash password unlock.
-- `GET /api/spotify` → fetches the playlist's tracks from the Spotify Web API and
-  returns a trimmed array:
+- **Correction after live testing (2026-07-14):** Spotify's Client Credentials
+  flow (app-only, no user login) can no longer read playlist contents. Confirmed
+  against the real playlist and app credentials: `/playlists/{id}/tracks` → 403,
+  the replacement `/playlists/{id}/items` → 401 `"Valid user authentication
+  required"`. This is a platform-wide restriction (since May 2026) for apps
+  without a Spotify-granted Quota Extension — not something fixable via scopes
+  or endpoint choice. Individual track lookups (`GET /v1/tracks/{id}`) are
+  unaffected and still work with Client Credentials.
+- **Fix: one-time Authorization Code OAuth for the TSUKIBOYZ account**, used as a
+  service-account style setup (not per-visitor login):
+  - `api/spotify-login.js` — redirects to Spotify's `/authorize` with
+    `scope=playlist-read-private playlist-read-collaborative`.
+  - `api/spotify-callback.js` — exchanges the returned `code` for an
+    `access_token` + `refresh_token`, and displays the `refresh_token` once so
+    the account owner can copy it into a Vercel env var
+    (`SPOTIFY_REFRESH_TOKEN`). Not persisted automatically — Vercel functions
+    can't write their own env vars, so this is a manual copy-paste step, same
+    as the Client ID/Secret setup.
+  - `api/spotify.js` uses `SPOTIFY_REFRESH_TOKEN` to mint short-lived access
+    tokens via `grant_type=refresh_token`, caches them in memory until expiry
+    (same in-memory pattern as the trash-unlock sessions), then calls
+    `/v1/playlists/{id}/items` with that user-authorized token.
+  - Redirect URI registered in the Spotify app:
+    `https://tsukiboys-website.vercel.app/api/spotify-callback`.
+- `GET /api/spotify` → returns a trimmed array:
   ```json
   [{ "name": "...", "artist": "...", "cover": "https://...", "uri": "spotify:track:..." }]
   ```
 - Front end fetches this once on page load. Forward/back only change a local array
   index — no repeat network calls.
+- Result: adding a track to the Spotify playlist makes it show up in the widget
+  with zero code changes — the original "automatic" requirement holds, just
+  routed through a one-time OAuth grant instead of Client Credentials.
 
 ### Playback: hidden Spotify Embed + IFrame API
 
@@ -83,9 +104,15 @@ Matches the existing glass aesthetic (`#now-popup` in `styles.css`), scaled up:
 
 ## Setup required (one-time, human)
 
-1. Create an app at the Spotify Developer Dashboard, get Client ID + Secret.
+1. Create an app at the Spotify Developer Dashboard, get Client ID + Secret. Add
+   redirect URI `https://tsukiboys-website.vercel.app/api/spotify-callback`.
 2. Add `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` as Vercel environment
-   variables for this project, redeploy.
+   variables for this project, deploy.
+3. Once deployed, the TSUKIBOYZ account owner visits `/api/spotify-login`, logs
+   in with the account that owns the playlist, approves access. The callback
+   page displays a `refresh_token` once.
+4. Copy that `refresh_token` into a new Vercel env var `SPOTIFY_REFRESH_TOKEN`,
+   redeploy. From this point on, playlist sync is fully automatic.
 
 ## Out of scope
 
