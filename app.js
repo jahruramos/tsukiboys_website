@@ -7,22 +7,12 @@
   const dockEl = document.getElementById("dock");
   const dropdown = document.getElementById("menu-dropdown");
 
-  /* ---------- UI click sound (Web Audio API) ---------- */
-  let _clickCtx = null;
+  /* ---------- UI click sound ---------- */
+  const _clickAudio = new Audio("assets/matthewvakaliuk73627-mouse-click-290204.mp3");
   function playClick() {
     try {
-      if (!_clickCtx) _clickCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const t = _clickCtx.currentTime;
-      const osc = _clickCtx.createOscillator();
-      const gain = _clickCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(1800, t);
-      osc.frequency.exponentialRampToValueAtTime(900, t + 0.03);
-      gain.gain.setValueAtTime(0.15, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-      osc.connect(gain).connect(_clickCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.05);
+      _clickAudio.currentTime = 0;
+      _clickAudio.play();
     } catch {}
   }
 
