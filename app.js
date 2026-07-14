@@ -48,7 +48,58 @@
     updateDockDots();
   }
 
-  function createWindow({ id, title, x, y, w, h, bodyHTML, appKey, bodyClass }) {
+  // Decorative toolbar glyphs (no dedicated asset files — drawn inline so the
+  // Finder-style chrome doesn't depend on new image assets).
+  const TRAFFIC_HTML = `
+    <div class="traffic">
+      <img class="tl-close" src="assets/tl-close.svg" alt="close" />
+      <img class="tl-min" src="assets/tl-min.svg" alt="minimize" />
+      <img class="tl-max" src="assets/tl-expand.svg" alt="maximize" />
+    </div>`;
+  const TB_ICONS = {
+    chevronLeft: `<svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    chevronRight: `<svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    grid: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="13" y="3" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="3" y="13" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="13" y="13" width="8" height="8" rx="1.5" fill="currentColor"/></svg>`,
+    list: `<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="2.6" rx="1.3" fill="currentColor"/><rect x="3" y="11" width="18" height="2.6" rx="1.3" fill="currentColor"/><rect x="3" y="17" width="18" height="2.6" rx="1.3" fill="currentColor"/></svg>`,
+    share: `<svg viewBox="0 0 24 24"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 8l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    tag: `<svg viewBox="0 0 24 24"><path d="M11 3H5a2 2 0 0 0-2 2v6l10 10 8-8L11 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/></svg>`,
+    more: `<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>`,
+  };
+
+  function finderTitlebarHTML(title) {
+    return `
+      <div class="titlebar tb-finder">
+        ${TRAFFIC_HTML}
+        <div class="tb-nav">
+          <button class="tb-btn" type="button">${TB_ICONS.chevronLeft}</button>
+          <button class="tb-btn" type="button" disabled>${TB_ICONS.chevronRight}</button>
+        </div>
+        <div class="win-title">${title}</div>
+        <div class="tb-icons">
+          <button class="tb-btn" type="button">${TB_ICONS.grid}</button>
+          <button class="tb-btn" type="button">${TB_ICONS.list}</button>
+          <span class="tb-sep"></span>
+          <button class="tb-btn" type="button">${TB_ICONS.share}</button>
+          <button class="tb-btn" type="button">${TB_ICONS.tag}</button>
+          <button class="tb-btn" type="button">${TB_ICONS.more}</button>
+          <button class="tb-btn tb-search" type="button"><img src="assets/search.svg" alt="" /></button>
+        </div>
+      </div>
+      <div class="pathbar">
+        <span class="pathbar-label">${title}</span>
+        <button class="pathbar-add" type="button">+</button>
+      </div>`;
+  }
+
+  function plainTitlebarHTML(title) {
+    return `
+      <div class="titlebar">
+        ${TRAFFIC_HTML}
+        <div class="win-title">${title}</div>
+      </div>`;
+  }
+
+  function createWindow({ id, title, x, y, w, h, bodyHTML, appKey, bodyClass, chrome }) {
     if (wins[id]) {
       // Already open: un-minimize + focus
       const ex = wins[id];
@@ -58,6 +109,7 @@
       return ex.el;
     }
     const el = document.createElement("div");
+    el.id = id;
     el.className = "window opening";
     el.style.left = x + "px";
     el.style.top = y + "px";
@@ -65,14 +117,7 @@
     el.style.height = h + "px";
     el.style.zIndex = ++zTop;
     el.innerHTML = `
-      <div class="titlebar">
-        <div class="traffic">
-          <img class="tl-close" src="assets/tl-close.svg" alt="close" />
-          <img class="tl-min" src="assets/tl-min.svg" alt="minimize" />
-          <img class="tl-max" src="assets/tl-expand.svg" alt="maximize" />
-        </div>
-        <div class="win-title">${title}</div>
-      </div>
+      ${chrome === "finder" ? finderTitlebarHTML(title) : plainTitlebarHTML(title)}
       <div class="win-body ${bodyClass || ""}">${bodyHTML}</div>
       <div class="rz rz-n"></div><div class="rz rz-s"></div>
       <div class="rz rz-e"></div><div class="rz rz-w"></div>
@@ -258,22 +303,49 @@
       </div>`).join("") + `</div>`;
   }
 
-  function finderBodyHTML(activeKey) {
-    const items = Object.entries(FOLDERS).map(([k, v]) =>
+  // Decorative sidebar glyphs for the non-functional Finder favorites (Recientes,
+  // Aplicaciones, etc.) — mirrors the reference screenshot; only the folder
+  // entries below are wired to actually do anything.
+  const SB_ICONS = {
+    recent: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    apps: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.6" fill="currentColor"/><rect x="14" y="3" width="7" height="7" rx="1.6" fill="currentColor"/><rect x="3" y="14" width="7" height="7" rx="1.6" fill="currentColor"/><rect x="14" y="14" width="7" height="7" rx="1.6" fill="currentColor"/></svg>`,
+    desktop: `<svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="12" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 20h6M12 16v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    docs: `<svg viewBox="0 0 24 24"><path d="M6 2.5h8l4 4v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-18a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 2.5v4h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`,
+    downloads: `<svg viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+    cloud: `<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96 5.5 5.5 0 0 1 10.7-1.6A4 4 0 0 1 17 18H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`,
+    shared: `<svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17" cy="9" r="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M14.5 15.2c2.2.3 3.5 2 3.5 4.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+  };
+  const sbStatic = (icon, label) =>
+    `<div class="sb-item sb-static"><span class="sb-icon">${icon}</span>${label}</div>`;
+
+  function sidebarHTML(activeKey) {
+    const folderItems = Object.entries(FOLDERS).map(([k, v]) =>
       `<div class="sb-item ${k === activeKey ? "active" : ""}" data-folder="${k}">
         <img src="assets/sidebar-folder.svg" alt="" />${v.label}</div>`).join("");
     return `
-      <div class="sidebar">
-        <div class="sb-head">Favorites</div>
-        ${items}
-      </div>
+      <div class="sb-head">Favoritos</div>
+      ${sbStatic(SB_ICONS.recent, "Recientes")}
+      ${folderItems}
+      ${sbStatic(SB_ICONS.apps, "Aplicaciones")}
+      ${sbStatic(SB_ICONS.desktop, "Escritorio")}
+      ${sbStatic(SB_ICONS.docs, "Documentos")}
+      ${sbStatic(SB_ICONS.downloads, "Descargas")}
+      <div class="sb-head">iCloud</div>
+      ${sbStatic(SB_ICONS.cloud, "iCloud Drive")}
+      ${sbStatic(SB_ICONS.shared, "Compartido")}
+      <div class="sb-head">Etiquetas</div>`;
+  }
+
+  function finderBodyHTML(activeKey) {
+    return `
+      <div class="sidebar">${sidebarHTML(activeKey)}</div>
       <div class="win-content">${fileGridHTML(FOLDERS[activeKey].files)}</div>`;
   }
 
   function openFinder(folderKey = "music") {
     const id = "finder-" + (++winCounter);
     const el = createWindow({
-      id, appKey: "finder",
+      id, appKey: "finder", chrome: "finder",
       title: FOLDERS[folderKey].label,
       x: cx(798) + Object.keys(wins).length * 24, y: 180 + Object.keys(wins).length * 24, w: 798, h: 551,
       bodyHTML: finderBodyHTML(folderKey),
@@ -286,13 +358,14 @@
   function setFinderFolder(el, folderKey) {
     el.dataset.folder = folderKey;
     el.querySelector(".win-title").textContent = FOLDERS[folderKey].label;
+    el.querySelector(".pathbar-label").textContent = FOLDERS[folderKey].label;
     el.querySelector(".win-body").innerHTML = finderBodyHTML(folderKey);
     wireFinder(el);
   }
 
   function wireFinder(el) {
     const files = FOLDERS[el.dataset.folder].files;
-    el.querySelectorAll(".sb-item").forEach((it) => {
+    el.querySelectorAll(".sb-item[data-folder]").forEach((it) => {
       it.onclick = () => setFinderFolder(el, it.dataset.folder);
     });
     el.querySelectorAll(".file-item").forEach((it) => {
@@ -438,23 +511,28 @@
 
   function openTrash() {
     const trashId = "trash-" + (++winCounter);
-    const authId = "trash-auth-" + winCounter;
-
-    const trashFiles = LOCK_FILES;
     const trashBody = `
       <div class="sidebar">
-        <div class="sb-head">Favorites</div>
+        <div class="sb-head">Favoritos</div>
         <div class="sb-item active">
           <img src="assets/sidebar-folder.svg" alt="" />Trash</div>
       </div>
-      <div class="win-content trash-locked">${fileGridHTML(trashFiles)}</div>`;
+      <div class="win-content trash-locked">${fileGridHTML(LOCK_FILES)}</div>`;
     const trashEl = createWindow({
-      id: trashId, appKey: "trash", title: "Trash",
+      id: trashId, appKey: "trash", chrome: "finder", title: "Trash",
       x: cx(798), y: 180, w: 798, h: 551,
       bodyHTML: trashBody,
     });
+    trashEl.dataset.locked = "true";
     trashEl.querySelector(".win-body").classList.add("blurred-content");
+    promptTrashAuth(trashEl);
+  }
 
+  // Re-summonable: the auth window is a separate appKey from the trash
+  // window itself, so closing the prompt without unlocking doesn't strand
+  // the trash content locked forever — the dock re-opens this on next click.
+  function promptTrashAuth(trashEl) {
+    const authId = "trash-auth-" + (++winCounter);
     const authBody = `
       <div class="auth-box">
         <img src="assets/trash.png" alt="" class="auth-icon" />
@@ -464,7 +542,7 @@
         <button class="auth-btn">Desbloquear</button>
       </div>`;
     const authEl = createWindow({
-      id: authId, appKey: "trash", title: "Las que no salieron :(",
+      id: authId, appKey: "trash-auth", title: "Las que no salieron :(",
       x: cx(400), y: cy(280), w: 400, h: 280,
       bodyHTML: authBody,
     });
@@ -473,15 +551,30 @@
     const btn = authEl.querySelector(".auth-btn");
     const error = authEl.querySelector(".auth-error");
 
-    function tryUnlock() {
-      if (input.value === "tsukiboyzgang") {
-        trashEl.querySelector(".win-body").classList.remove("blurred-content");
-        closeWindow(authId);
-        wireTrashFiles(trashEl);
-      } else {
-        error.classList.remove("hidden");
-        input.value = "";
-        input.focus();
+    // The password itself is verified server-side (serve.js) — it also gates
+    // direct requests to /lock/*, so this isn't just a cosmetic client check.
+    async function tryUnlock() {
+      error.classList.add("hidden");
+      btn.disabled = true;
+      try {
+        const res = await fetch("/api/unlock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: input.value }),
+        });
+        if (res.ok) {
+          trashEl.dataset.locked = "false";
+          trashEl.querySelector(".win-body").classList.remove("blurred-content");
+          closeWindow(authId);
+          focusWindow(trashEl.id);
+          wireTrashFiles(trashEl);
+        } else {
+          error.classList.remove("hidden");
+          input.value = "";
+          input.focus();
+        }
+      } finally {
+        btn.disabled = false;
       }
     }
 
@@ -543,6 +636,16 @@
   function launchFromDock(key, item) {
     const existing = Object.values(wins).filter((w) => w.appKey === key);
     if (existing.length) {
+      if (key === "trash") {
+        const trashWin = existing[existing.length - 1];
+        if (trashWin.el.dataset.locked === "true") {
+          const authWin = Object.values(wins).find((w) => w.appKey === "trash-auth");
+          if (authWin) focusWindow(authWin.el.id);
+          else promptTrashAuth(trashWin.el);
+          updateDockDots();
+          return;
+        }
+      }
       const focused = existing.find((w) => !w.el.classList.contains("blurred") && !w.minimized);
       if (focused) {
         minimizeWindow(focused.el.id);

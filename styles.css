@@ -163,7 +163,7 @@ body {
   color: #f2f2f2;
   font-size: 13px;
 }
-#menu-dropdown.hidden {
+.hidden {
   display: none;
 }
 .dd-item {
@@ -323,6 +323,112 @@ body {
   filter: grayscale(1) brightness(0.7);
 }
 
+/* Finder-style chrome: nav chevrons + toolbar icon cluster + path bar,
+   matching the macOS Finder toolbar layout (reference screenshot). */
+.tb-finder {
+  gap: 6px;
+}
+.tb-finder .win-title {
+  position: static;
+  flex: 1;
+  text-align: center;
+  pointer-events: auto;
+}
+.tb-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: 6px;
+}
+.tb-icons {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: auto;
+}
+.tb-sep {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.16);
+  margin: 0 5px;
+}
+.tb-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: rgba(255, 255, 255, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  padding: 0;
+  flex-shrink: 0;
+}
+.tb-btn svg {
+  width: 15px;
+  height: 15px;
+}
+.tb-btn img {
+  width: 14px;
+  height: 14px;
+  filter: brightness(0) invert(1);
+  opacity: 0.82;
+}
+.tb-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.tb-btn:disabled {
+  opacity: 0.32;
+}
+.window.blurred .tb-btn {
+  color: rgba(255, 255, 255, 0.35);
+}
+.window.blurred .tb-btn img {
+  opacity: 0.35;
+}
+
+.pathbar {
+  height: 27px;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.16);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.3);
+}
+.pathbar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(235, 235, 245, 0.65);
+}
+.window.blurred .pathbar-label {
+  color: rgba(235, 235, 245, 0.32);
+}
+.pathbar-add {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 19px;
+  height: 19px;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(235, 235, 245, 0.8);
+  font-size: 13px;
+  line-height: 1;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pathbar-add:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
 /* Finder body: sidebar + content */
 .win-body {
   flex: 1;
@@ -330,24 +436,28 @@ body {
   min-height: 0;
 }
 .sidebar {
-  width: 156px;
+  width: 196px;
   flex-shrink: 0;
   background: var(--sidebar-bg);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  padding: 8px 11px;
+  padding: 10px 11px;
+  overflow-y: auto;
 }
 .sidebar .sb-head {
   font-size: 11px;
   font-weight: 700;
   color: var(--label-secondary);
-  padding: 8px 8px 6px;
+  padding: 12px 8px 5px;
+}
+.sidebar .sb-head:first-child {
+  padding-top: 6px;
 }
 .sb-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 28px;
+  gap: 9px;
+  height: 27px;
   padding: 0 8px;
   border-radius: 6px;
   font-size: 13px;
@@ -358,12 +468,29 @@ body {
   width: 15px;
   height: 13px;
   object-fit: contain;
+  flex-shrink: 0;
+}
+.sb-icon {
+  width: 15px;
+  height: 14px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(235, 235, 245, 0.55);
+}
+.sb-icon svg {
+  width: 100%;
+  height: 100%;
 }
 .sb-item:hover {
   background: rgba(255, 255, 255, 0.08);
 }
 .sb-item.active {
   background: rgba(255, 255, 255, 0.14);
+}
+.sb-item.sb-static {
+  cursor: default;
 }
 
 .win-content {
