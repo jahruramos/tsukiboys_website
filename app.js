@@ -749,7 +749,7 @@
           <img class="app-hero" src="assets/${m.icon}" alt="" />
           <h2>${m.name}</h2>
           <p>${m.desc}</p>
-          <div class="placeholder-tag">Contenido de ejemplo · se conectará después</div>
+          <div class="placeholder-tag">TSUKIBOYS®2026 ALL RIGHTS RESERVED</div>
         </div>`,
     });
   }
