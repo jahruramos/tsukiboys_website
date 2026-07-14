@@ -930,10 +930,10 @@
 
   /* ---------- Desktop icons ---------- */
   const DESK_ICONS = [
-    { key: "tsukiboys", label: "TSUKIBOYZ", x: 122, y: 116 },
-    { key: "eventos", label: "EVENTOS", x: 122, y: 234 },
-    { key: "music", label: "MUSIC", x: 122, y: 353 },
-    { key: "kits", label: "KITS GANG", x: 122, y: 470 },
+    { key: "tsukiboys", label: "TSUKIBOYZ", x: 1760, y: 116 },
+    { key: "eventos", label: "EVENTOS", x: 1760, y: 234 },
+    { key: "music", label: "MUSIC", x: 1760, y: 353 },
+    { key: "kits", label: "KITS GANG", x: 1760, y: 470 },
   ];
 
   // Tracks the last-selected item so Space (Quick Look) knows what to open.
