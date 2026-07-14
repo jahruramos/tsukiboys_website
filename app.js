@@ -35,6 +35,7 @@
 
   /* ---------- Window manager ---------- */
   let zTop = 500;
+  let winCounter = 0;
   const wins = {}; // id -> { el, appKey, minimized, prevRect }
 
   function focusWindow(id) {
@@ -229,13 +230,11 @@
   /* ---------- Folder / Finder ---------- */
   // Real audio files living in ./songs (name shown = file name).
   const MUSIC_SONGS = [
-    "BOUNCE_TUS MANAS_MIKE CASTILLO.wav",
     "CHRIS REDD - PALOMA MAMI [RBCK] MASTER V4 FINAL.wav",
     "MASTER_ ALGO + PA TI_KAPAC x JEEICO x GZVZ.wav",
     "MASTER_JACK_RAINAO.wav",
-    "REMIX PALOMA MAMI_CHRIS REDD x MIKE CASTILLO.mp3",
     "V27_M&M_Ritual_88_Am_Distribuir.wav",
-  ].map((f) => ({ name: f, file: f }));
+  ].map((f) => ({ name: f, file: "songs/" + f }));
 
   const FOLDERS = {
     tsukiboys: { label: "Tsukiboys", files: [] },
@@ -272,11 +271,11 @@
   }
 
   function openFinder(folderKey = "music") {
+    const id = "finder-" + (++winCounter);
     const el = createWindow({
-      id: "finder",
-      appKey: "finder",
+      id, appKey: "finder",
       title: FOLDERS[folderKey].label,
-      x: cx(798), y: 180, w: 798, h: 551,
+      x: cx(798) + Object.keys(wins).length * 24, y: 180 + Object.keys(wins).length * 24, w: 798, h: 551,
       bodyHTML: finderBodyHTML(folderKey),
     });
     el.dataset.folder = folderKey;
@@ -321,8 +320,9 @@
   function openPlayer(song) {
     const id = "player:" + song.file;
     if (wins[id]) { focusWindow(id); return; }
+    Object.keys(wins).filter((k) => k.startsWith("player:")).forEach((k) => closeWindow(k));
     ++playerCount;
-    const src = "songs/" + encodeURIComponent(song.file);
+    const src = encodeURI(song.file);
     const el = createWindow({
       id, appKey: "music", title: song.name,
       x: cx(560) + playerCount * 26, y: cy(300) + playerCount * 26, w: 560, h: 300,
@@ -404,19 +404,21 @@
     mail:    { name: "Mail",    icon: "mail.png",    desc: "Bandeja de entrada de TSUKIBOYS." },
     books:   { name: "Books",   icon: "books.png",   desc: "Biblioteca de lecturas." },
     maps:    { name: "Maps",    icon: "maps.png",    desc: "Ubicaciones de eventos." },
-    discord: { name: "Discord", icon: "discord.png", desc: "Únete al servidor de la comunidad." },
+    discord: { name: "Discord", icon: "discord.png", desc: "Únete al servidor de la comunidad.<br><a href='https://discord.gg/P4DCdGCcVt' target='_blank' style='color:#3b6ff5'>https://discord.gg/P4DCdGCcVt</a>" },
     ableton: { name: "Ableton Live", icon: "ableton.png", desc: "Sesiones y proyectos de producción." },
     notes:   { name: "Notes",   icon: "notes.png",   desc: "Notas y letras." },
-    spotify: { name: "Spotify", icon: "spotify.png", desc: "Escucha los lanzamientos de TSUKIBOYS." },
+    spotify: { name: "Spotify", icon: "spotify.png", desc: "Escucha nuestras producciones.<br><a href='https://sptfy.com/QhZS~s' target='_blank' style='color:#3b6ff5'>https://sptfy.com/QhZS~s</a>" },
     trash:   { name: "Trash",   icon: "trash.png",   desc: "La papelera está vacía." },
   };
 
   function openApp(key) {
     if (key === "finder") return openFinder();
+    if (key === "trash") return openTrash();
     const m = APP_META[key];
     if (!m) return;
+    const id = "app-" + key + "-" + (++winCounter);
     createWindow({
-      id: "app-" + key, appKey: key, title: m.name,
+      id, appKey: key, title: m.name,
       x: cx(560) + Object.keys(wins).length * 24,
       y: cy(420) + Object.keys(wins).length * 24,
       w: 560, h: 420,
@@ -427,6 +429,79 @@
           <p>${m.desc}</p>
           <div class="placeholder-tag">Contenido de ejemplo · se conectará después</div>
         </div>`,
+    });
+  }
+
+  const LOCK_FILES = [
+    "REMIX PALOMA MAMI_CHRIS REDD x MIKE CASTILLO.mp3",
+  ].map((f) => ({ name: f, file: "lock/" + f }));
+
+  function openTrash() {
+    const trashId = "trash-" + (++winCounter);
+    const authId = "trash-auth-" + winCounter;
+
+    const trashFiles = LOCK_FILES;
+    const trashBody = `
+      <div class="sidebar">
+        <div class="sb-head">Favorites</div>
+        <div class="sb-item active">
+          <img src="assets/sidebar-folder.svg" alt="" />Trash</div>
+      </div>
+      <div class="win-content trash-locked">${fileGridHTML(trashFiles)}</div>`;
+    const trashEl = createWindow({
+      id: trashId, appKey: "trash", title: "Trash",
+      x: cx(798), y: 180, w: 798, h: 551,
+      bodyHTML: trashBody,
+    });
+    trashEl.querySelector(".win-body").classList.add("blurred-content");
+
+    const authBody = `
+      <div class="auth-box">
+        <img src="assets/trash.png" alt="" class="auth-icon" />
+        <p class="auth-msg">Ingresa la contraseña para acceder a la Papelera</p>
+        <input type="password" class="auth-input" placeholder="Contraseña" />
+        <div class="auth-error hidden">Contraseña incorrecta</div>
+        <button class="auth-btn">Desbloquear</button>
+      </div>`;
+    const authEl = createWindow({
+      id: authId, appKey: "trash", title: "Las que no salieron :(",
+      x: cx(400), y: cy(280), w: 400, h: 280,
+      bodyHTML: authBody,
+    });
+
+    const input = authEl.querySelector(".auth-input");
+    const btn = authEl.querySelector(".auth-btn");
+    const error = authEl.querySelector(".auth-error");
+
+    function tryUnlock() {
+      if (input.value === "tsukiboyzgang") {
+        trashEl.querySelector(".win-body").classList.remove("blurred-content");
+        closeWindow(authId);
+        wireTrashFiles(trashEl);
+      } else {
+        error.classList.remove("hidden");
+        input.value = "";
+        input.focus();
+      }
+    }
+
+    btn.addEventListener("click", tryUnlock);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
+    input.focus();
+  }
+
+  function wireTrashFiles(el) {
+    const files = LOCK_FILES;
+    el.querySelectorAll(".file-item").forEach((it) => {
+      const song = files[it.dataset.idx];
+      it.onclick = (e) => {
+        e.stopPropagation();
+        document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
+        document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
+        it.classList.add("selected");
+        quickLook = { kind: "song", song };
+      };
+      it.ondblclick = () => openPlayer(song);
     });
   }
 
@@ -459,25 +534,27 @@
         <div class="dock-tip">${d.name}</div>
         <img src="assets/${d.icon}" alt="${d.name}" />
         <span class="dot"></span>`;
+      item.addEventListener("mousedown", (e) => e.stopPropagation());
       item.addEventListener("click", () => launchFromDock(d.key, item));
       dockEl.appendChild(item);
     });
   }
 
   function launchFromDock(key, item) {
-    const existing = wins[key === "finder" ? "finder" : "app-" + key];
-    if (existing && existing.minimized) {
-      existing.el.style.display = "flex";
-      existing.minimized = false;
-      focusWindow(existing.el.id ? existing.el.id : key);
-      // focus by id lookup
-      const id = key === "finder" ? "finder" : "app-" + key;
-      focusWindow(id);
+    const existing = Object.values(wins).filter((w) => w.appKey === key);
+    if (existing.length) {
+      const focused = existing.find((w) => !w.el.classList.contains("blurred") && !w.minimized);
+      if (focused) {
+        minimizeWindow(focused.el.id);
+      } else {
+        const last = existing[existing.length - 1];
+        if (last.minimized) {
+          last.el.style.display = "flex";
+          last.minimized = false;
+        }
+        focusWindow(last.el.id);
+      }
       updateDockDots();
-      return;
-    }
-    if (existing) {
-      focusWindow(key === "finder" ? "finder" : "app-" + key);
       return;
     }
     item.classList.add("bounce");
@@ -488,9 +565,8 @@
   function updateDockDots() {
     dockEl.querySelectorAll(".dock-item").forEach((item) => {
       const key = item.dataset.key;
-      const id = key === "finder" ? "finder" : "app-" + key;
-      const open = !!wins[id] || (key === "music");
-      item.classList.toggle("running", !!wins[id]);
+      const hasWindow = Object.values(wins).some((w) => w.appKey === key);
+      item.classList.toggle("running", hasWindow);
     });
   }
 
@@ -505,9 +581,7 @@
   let quickLook = null;
 
   function openDeskFolder(key) {
-    const ex = wins["finder"];
-    if (ex) { setFinderFolder(ex.el, key); focusWindow("finder"); }
-    else openFinder(key);
+    openFinder(key);
   }
 
   // Desktop icons: click selects, drag moves, double-click opens.
@@ -658,6 +732,7 @@
       document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
       document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
       quickLook = null;
+      Object.keys(wins).forEach((id) => minimizeWindow(id));
     }
   });
 

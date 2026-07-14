@@ -47,6 +47,7 @@ http
           "Content-Type": type,
           "Content-Length": stat.size,
           "Accept-Ranges": "bytes",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
         });
         fs.createReadStream(filePath).pipe(res);
       }
