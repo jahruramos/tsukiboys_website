@@ -143,17 +143,14 @@
     // Traffic lights
     el.querySelector(".tl-close").addEventListener("click", (e) => {
       e.stopPropagation();
-      playClick();
       closeWindow(id);
     });
     el.querySelector(".tl-min").addEventListener("click", (e) => {
       e.stopPropagation();
-      playClick();
       minimizeWindow(id);
     });
     el.querySelector(".tl-max").addEventListener("click", (e) => {
       e.stopPropagation();
-      playClick();
       toggleMaximize(id);
     });
 
@@ -378,19 +375,18 @@
   function wireFinder(el) {
     const files = FOLDERS[el.dataset.folder].files;
     el.querySelectorAll(".sb-item[data-folder]").forEach((it) => {
-      it.onclick = () => { playClick(); setFinderFolder(el, it.dataset.folder); };
+      it.onclick = () => setFinderFolder(el, it.dataset.folder);
     });
     el.querySelectorAll(".file-item").forEach((it) => {
       const song = files[it.dataset.idx];
       it.onclick = (e) => {
         e.stopPropagation();
-        playClick();
         document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
         document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
         it.classList.add("selected");
         quickLook = { kind: "song", song };
       };
-      it.ondblclick = () => openPlayer(song);
+      it.ondblclick = () => { playClick(); openPlayer(song); };
     });
   }
 
@@ -591,7 +587,7 @@
       }
     }
 
-    btn.addEventListener("click", () => { playClick(); tryUnlock(); });
+    btn.addEventListener("click", tryUnlock);
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
     input.focus();
   }
@@ -602,13 +598,12 @@
       const song = files[it.dataset.idx];
       it.onclick = (e) => {
         e.stopPropagation();
-        playClick();
         document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
         document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
         it.classList.add("selected");
         quickLook = { kind: "song", song };
       };
-      it.ondblclick = () => openPlayer(song);
+      it.ondblclick = () => { playClick(); openPlayer(song); };
     });
   }
 
@@ -642,7 +637,7 @@
         <img src="assets/${d.icon}" alt="${d.name}" />
         <span class="dot"></span>`;
       item.addEventListener("mousedown", (e) => e.stopPropagation());
-      item.addEventListener("click", () => { playClick(); launchFromDock(d.key, item); });
+      item.addEventListener("click", () => launchFromDock(d.key, item));
       dockEl.appendChild(item);
     });
   }
@@ -821,7 +816,6 @@
   document.querySelectorAll(".mb-menu").forEach((m) => {
     m.addEventListener("click", (e) => {
       e.stopPropagation();
-      playClick();
       const key = m.dataset.menu;
       if (openMenu === m) { closeMenu(); return; }
       closeMenu();
