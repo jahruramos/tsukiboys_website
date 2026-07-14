@@ -1054,36 +1054,40 @@ body {
   background: #2b5ce6;
 }
 
-/* ---------- Spotify Widget ---------- */
-#spotify-widget {
+/* ---------- Notch ---------- */
+#notch {
   position: absolute;
-  top: 44px;
-  left: 20px;
-  width: 352px;
-  z-index: 900;
-  border-radius: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  width: 120px;
+  height: 30px;
+  background: #000;
+  border-radius: 0 0 18px 18px;
+  z-index: 10001;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  transition: width 0.3s ease, height 0.3s ease;
 }
-#spotify-widget iframe {
-  display: block;
-  border: none;
+#notch:hover {
+  width: 352px;
+  height: 200px;
+}
+#notch-embed {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease 0.1s;
+}
+#notch:hover #notch-embed {
+  opacity: 1;
   pointer-events: auto;
 }
-.spotify-handle {
-  height: 24px;
-  background: #181818;
-  color: #ccc;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.spotify-handle:active {
-  cursor: grabbing;
+#notch-embed iframe {
+  display: block;
+  border-radius: 12px;
+  border: none;
 }
