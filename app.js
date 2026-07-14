@@ -739,6 +739,8 @@
     if (key === "finder") return openFinder();
     if (key === "trash") return openTrash();
     if (key === "whatsapp") { window.open("https://chat.whatsapp.com/LvqLlXbyOdx5hyQyVmozp0", "_blank"); return; }
+    if (key === "discord") { window.open("https://discord.gg/P4DCdGCcVt", "_blank"); return; }
+    if (key === "spotify") { window.open("https://sptfy.com/QhZS~s", "_blank"); return; }
     const m = APP_META[key];
     if (!m) return;
     const id = "app-" + key + "-" + (++winCounter);
