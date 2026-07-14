@@ -936,11 +936,32 @@
     { key: "kits", label: "KITS GANG", right: 210, y: 560 },
   ];
 
+  const DESKTOP_FILES = [
+    { name: "TAG_TSBOYZ_83", file: "assets/desktop-tsuki/Copia de TAG_TSBOYZ_83.wav", kind: "audio" },
+    { name: "TSB_COVER_VOL2", file: "assets/desktop-tsuki/TSB_COVER_VOL2.png", kind: "image" },
+    { name: "WhatsApp Image", file: "assets/desktop-tsuki/WhatsApp Image 2026-07-14 at 18.18.58.jpeg", kind: "image" },
+  ];
+
   // Tracks the last-selected item so Space (Quick Look) knows what to open.
   let quickLook = null;
 
   function openDeskFolder(key) {
     openFinder(key);
+  }
+
+  function openImagePreview(file) {
+    const id = "preview:" + file.name;
+    if (wins[id]) { focusWindow(id); return; }
+    createWindow({
+      id, appKey: "preview", title: file.name,
+      x: cx(520) + Object.keys(wins).length * 24,
+      y: cy(440) + Object.keys(wins).length * 24,
+      w: 520, h: 440,
+      bodyHTML: `
+        <div class="app-body" style="padding:12px;display:flex;align-items:center;justify-content:center;height:100%;">
+          <img src="${esc(file.file)}" alt="${esc(file.name)}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;" />
+        </div>`,
+    });
   }
 
   // Desktop icons: click selects, drag moves, double-click opens.
@@ -991,6 +1012,7 @@
 
   function buildDesktopIcons() {
     const layer = document.getElementById("desktop-icons");
+    // Folder icons (right side)
     DESK_ICONS.forEach((d) => {
       const el = document.createElement("div");
       el.className = "desk-icon";
@@ -999,6 +1021,28 @@
       el.innerHTML = `<img src="assets/folder.png" alt="" draggable="false" /><span>${d.label}</span>`;
       el.addEventListener("dblclick", () => { playClick(); openDeskFolder(d.key); });
       makeDeskDraggable(el, d.key);
+      layer.appendChild(el);
+    });
+    // File icons (left side)
+    const filePositions = [
+      { x: 60, y: 140 },
+      { x: 170, y: 310 },
+      { x: 50, y: 480 },
+    ];
+    DESKTOP_FILES.forEach((f, i) => {
+      const el = document.createElement("div");
+      el.className = "desk-icon";
+      const pos = filePositions[i] || { x: 60, y: 140 + i * 170 };
+      el.style.left = pos.x + "px";
+      el.style.top = pos.y + "px";
+      const iconSrc = f.kind === "audio" ? "assets/wav-icon.png" : esc(f.file);
+      el.innerHTML = `<img src="${iconSrc}" alt="" draggable="false" /><span>${esc(f.name)}</span>`;
+      el.addEventListener("dblclick", () => {
+        playClick();
+        if (f.kind === "audio") openPlayer({ name: f.name, file: f.file });
+        else openImagePreview(f);
+      });
+      makeDeskDraggable(el, "file-" + i);
       layer.appendChild(el);
     });
   }
