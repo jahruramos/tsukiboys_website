@@ -1145,7 +1145,7 @@
       if (wins[id]) closeWindow(id);
       else openPlayer(quickLook.song);
     }
-    if (e.code === "Space" && quickLook && quickLook.kind === "file") {
+    if (e.code === "Space" && quickLook && (quickLook.kind === "audio" || quickLook.kind === "image")) {
       e.preventDefault();
       const f = quickLook.file;
       const id = "preview:" + f.name;
