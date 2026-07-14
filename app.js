@@ -726,8 +726,6 @@
   /* ---------- Generic app windows ---------- */
   const APP_META = {
     mail:    { name: "Mail",    icon: "mail.png",    desc: "Bandeja de entrada de TSUKIBOYS." },
-    books:   { name: "Books",   icon: "books.png",   desc: "Biblioteca de lecturas." },
-    maps:    { name: "Maps",    icon: "maps.png",    desc: "Ubicaciones de eventos." },
     discord: { name: "Discord", icon: "discord.png", desc: "Únete al servidor de la comunidad.<br><a href='https://discord.gg/P4DCdGCcVt' target='_blank' style='color:#3b6ff5'>https://discord.gg/P4DCdGCcVt</a>" },
     ableton: { name: "Ableton Live", icon: "ableton.png", desc: "Sesiones y proyectos de producción." },
     notes:   { name: "Notes",   icon: "notes.png",   desc: "Notas y letras." },
@@ -853,8 +851,6 @@
   const DOCK = [
     { key: "finder", name: "Finder", icon: "finder.png" },
     { key: "mail", name: "Mail", icon: "mail.png" },
-    { key: "books", name: "Books", icon: "books.png" },
-    { key: "maps", name: "Maps", icon: "maps.png" },
     { key: "discord", name: "Discord", icon: "discord.png" },
     { key: "ableton", name: "Ableton Live", icon: "ableton.png" },
     { key: "notes", name: "Notes", icon: "notes.png" },
