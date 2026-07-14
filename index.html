@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TSUKIBOYS</title>
+  <link rel="icon" href="assets/finder.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Fixed 1920x1080 stage, scaled to fit viewport -->
+  <div id="stage">
+    <!-- Wallpaper -->
+    <img id="wallpaper" src="assets/wallpaper.gif" alt="" draggable="false" />
+
+    <!-- ===== Menu Bar ===== -->
+    <div id="menubar">
+      <div class="mb-left">
+        <div class="mb-menu mb-apple" data-menu="apple">
+          <img src="assets/apple.svg" alt="Apple" draggable="false" />
+        </div>
+        <div class="mb-menu mb-bold" data-menu="finder">Finder</div>
+        <div class="mb-menu" data-menu="file">File</div>
+        <div class="mb-menu" data-menu="edit">Edit</div>
+        <div class="mb-menu" data-menu="view">View</div>
+        <div class="mb-menu" data-menu="go">Go</div>
+        <div class="mb-menu" data-menu="window">Window</div>
+        <div class="mb-menu" data-menu="help">Help</div>
+      </div>
+      <div class="mb-right">
+        <div class="mb-icon"><img src="assets/battery.svg" alt="Battery" draggable="false" /></div>
+        <div class="mb-icon mb-control"><img src="assets/control.svg" alt="Control Center" draggable="false" /></div>
+        <div class="mb-icon"><img src="assets/search.svg" alt="Spotlight" draggable="false" /></div>
+        <div class="mb-icon"><img src="assets/wifi.svg" alt="Wi-Fi" draggable="false" /></div>
+        <div class="mb-item" id="mb-date">Mon Jun 22</div>
+        <div class="mb-item" id="mb-clock">9:41 AM</div>
+      </div>
+    </div>
+
+    <!-- ===== Desktop icons ===== -->
+    <div id="desktop-icons"></div>
+
+    <!-- ===== Windows layer (populated by JS) ===== -->
+    <div id="windows"></div>
+
+    <!-- ===== Dock ===== -->
+    <div id="dock-wrap">
+      <div id="dock"></div>
+    </div>
+  </div>
+
+  <!-- Menu dropdown layer -->
+  <div id="menu-dropdown" class="hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
