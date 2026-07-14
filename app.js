@@ -282,6 +282,8 @@
   }
 
   /* ---------- Folder / Finder ---------- */
+  const _finderHistory = new Map();
+
   // Real audio files living in ./songs (name shown = file name).
   const MUSIC_SONGS = [
     "CHRIS REDD - PALOMA MAMI [RBCK] MASTER V4 FINAL.wav",
@@ -310,6 +312,29 @@
         <div class="ficon"><img src="assets/wav-icon.png" alt="" /></div>
         <span>${esc(f.name)}</span>
       </div>`).join("") + `</div>`;
+  }
+
+  function fileListHTML(files) {
+    if (!files.length) {
+      return `<div class="app-body"><p>Carpeta vacía</p>
+        <div class="placeholder-tag">Contenido próximamente</div></div>`;
+    }
+    const kindLabel = (f) => f.file.endsWith(".mp3") ? "Audio MP3" : "Audio WAV";
+    return `
+      <div class="file-list">
+        <div class="fl-header">
+          <div class="fl-col fl-col-name">Name</div>
+          <div class="fl-col fl-col-kind">Kind</div>
+        </div>
+        ${files.map((f, i) => `
+          <div class="file-item file-list-row" data-idx="${i}">
+            <div class="fl-col fl-col-name">
+              <img class="fl-icon" src="assets/wav-icon.png" alt="" />
+              <span>${esc(f.name)}</span>
+            </div>
+            <div class="fl-col fl-col-kind">${kindLabel(f)}</div>
+          </div>`).join("")}
+      </div>`;
   }
 
   // Decorative sidebar glyphs for the non-functional Finder favorites (Recientes,
@@ -345,31 +370,72 @@
       <div class="sb-head">Etiquetas</div>`;
   }
 
-  function finderBodyHTML(activeKey) {
+  function finderBodyHTML(activeKey, view) {
+    const files = FOLDERS[activeKey].files;
+    const contentHTML = view === "list" ? fileListHTML(files) : fileGridHTML(files);
     return `
       <div class="sidebar">${sidebarHTML(activeKey)}</div>
-      <div class="win-content">${fileGridHTML(FOLDERS[activeKey].files)}</div>`;
+      <div class="win-content">${contentHTML}</div>`;
   }
 
   function openFinder(folderKey = "music") {
     const id = "finder-" + (++winCounter);
+    const view = "grid";
     const el = createWindow({
       id, appKey: "finder", chrome: "finder",
       title: FOLDERS[folderKey].label,
       x: cx(798) + Object.keys(wins).length * 24, y: 180 + Object.keys(wins).length * 24, w: 798, h: 551,
-      bodyHTML: finderBodyHTML(folderKey),
+      bodyHTML: finderBodyHTML(folderKey, view),
     });
     el.dataset.folder = folderKey;
+    el.dataset.view = view;
+    _finderHistory.set(el.id, { stack: [folderKey], idx: 0 });
     wireFinder(el);
+    updateViewButtons(el);
+    updateNavButtons(el);
     return el;
   }
 
-  function setFinderFolder(el, folderKey) {
+  function navigateToFolder(el, folderKey, push) {
+    const hist = _finderHistory.get(el.id);
+    if (push) {
+      hist.stack = hist.stack.slice(0, hist.idx + 1);
+      hist.stack.push(folderKey);
+      hist.idx = hist.stack.length - 1;
+    }
     el.dataset.folder = folderKey;
     el.querySelector(".win-title").textContent = FOLDERS[folderKey].label;
     el.querySelector(".pathbar-label").textContent = FOLDERS[folderKey].label;
-    el.querySelector(".win-body").innerHTML = finderBodyHTML(folderKey);
+    el.querySelector(".win-body").innerHTML = finderBodyHTML(folderKey, el.dataset.view);
     wireFinder(el);
+    updateNavButtons(el);
+  }
+
+  function setFinderFolder(el, folderKey) {
+    navigateToFolder(el, folderKey, true);
+  }
+
+  function navigateBack(el) {
+    const hist = _finderHistory.get(el.id);
+    if (hist.idx <= 0) return;
+    hist.idx--;
+    navigateToFolder(el, hist.stack[hist.idx], false);
+  }
+
+  function navigateForward(el) {
+    const hist = _finderHistory.get(el.id);
+    if (hist.idx >= hist.stack.length - 1) return;
+    hist.idx++;
+    navigateToFolder(el, hist.stack[hist.idx], false);
+  }
+
+  function updateNavButtons(el) {
+    const hist = _finderHistory.get(el.id);
+    if (!hist) return;
+    const navBtns = el.querySelectorAll(".tb-nav .tb-btn");
+    if (navBtns.length < 2) return;
+    navBtns[0].disabled = hist.idx <= 0;
+    navBtns[1].disabled = hist.idx >= hist.stack.length - 1;
   }
 
   function wireFinder(el) {
@@ -388,6 +454,39 @@
       };
       it.ondblclick = () => { playClick(); openPlayer(song); };
     });
+    wireViewButtons(el);
+    wireNavButtons(el);
+  }
+
+  function wireViewButtons(el) {
+    const btns = el.querySelectorAll(".tb-icons .tb-btn");
+    if (btns.length < 2) return;
+    const gridBtn = btns[0];
+    const listBtn = btns[1];
+    gridBtn.onclick = () => setFinderView(el, "grid");
+    listBtn.onclick = () => setFinderView(el, "list");
+  }
+
+  function wireNavButtons(el) {
+    const navBtns = el.querySelectorAll(".tb-nav .tb-btn");
+    if (navBtns.length < 2) return;
+    navBtns[0].onclick = () => navigateBack(el);
+    navBtns[1].onclick = () => navigateForward(el);
+  }
+
+  function setFinderView(el, view) {
+    if (el.dataset.view === view) return;
+    el.dataset.view = view;
+    el.querySelector(".win-body").innerHTML = finderBodyHTML(el.dataset.folder, view);
+    wireFinder(el);
+    updateViewButtons(el);
+  }
+
+  function updateViewButtons(el) {
+    const btns = el.querySelectorAll(".tb-icons .tb-btn");
+    if (btns.length < 2) return;
+    btns[0].classList.toggle("tb-active", el.dataset.view === "grid");
+    btns[1].classList.toggle("tb-active", el.dataset.view === "list");
   }
 
   /* ---------- Quick Look audio player ---------- */
