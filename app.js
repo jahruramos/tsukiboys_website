@@ -1036,13 +1036,21 @@
       el.style.left = pos.x + "px";
       el.style.top = pos.y + "px";
       const iconSrc = f.kind === "audio" ? "assets/wav-icon.png" : esc(f.file);
-      el.innerHTML = `<img src="${iconSrc}" alt="" draggable="false" /><span>${esc(f.name)}</span>`;
+      const frameClass = f.kind === "image" ? " desk-icon-frame" : "";
+      el.innerHTML = `<img class="desk-file-img${frameClass}" src="${iconSrc}" alt="" draggable="false" /><span>${esc(f.name)}</span>`;
       el.addEventListener("dblclick", () => {
         playClick();
         if (f.kind === "audio") openPlayer({ name: f.name, file: f.file });
         else openImagePreview(f);
       });
       makeDeskDraggable(el, "file-" + i);
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
+        document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
+        el.classList.add("selected");
+        quickLook = { kind: f.kind, file: f };
+      });
       layer.appendChild(el);
     });
   }
@@ -1136,6 +1144,14 @@
       const id = "player:" + quickLook.song.file;
       if (wins[id]) closeWindow(id);
       else openPlayer(quickLook.song);
+    }
+    if (e.code === "Space" && quickLook && quickLook.kind === "file") {
+      e.preventDefault();
+      const f = quickLook.file;
+      const id = "preview:" + f.name;
+      if (wins[id]) closeWindow(id);
+      else if (f.kind === "audio") openPlayer({ name: f.name, file: f.file });
+      else openImagePreview(f);
     }
   });
   stage.addEventListener("mousedown", (e) => {
