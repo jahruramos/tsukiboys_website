@@ -730,6 +730,8 @@
     ableton: { name: "Ableton Live", icon: "ableton.png", desc: "Sesiones y proyectos de producción." },
     notes:   { name: "Notes",   icon: "notes.png",   desc: "Notas y letras." },
     spotify: { name: "Spotify", icon: "spotify.png", desc: "Escucha nuestras producciones.<br><a href='https://sptfy.com/QhZS~s' target='_blank' style='color:#3b6ff5'>https://sptfy.com/QhZS~s</a>" },
+    flstudio: { name: "FL Studio", icon: "i-created-a-macos-version-of-the-fl-studio-icon-for-mac-v0-63je10rj3ywd1.webp", desc: "Producción musical y sesiones." },
+    whatsapp: { name: "WhatsApp", icon: "whatsapp-ios-app-light.png", desc: "Contacto directo con TSUKIBOYS." },
     trash:   { name: "Trash",   icon: "trash.png",   desc: "La papelera está vacía." },
   };
 
@@ -855,6 +857,8 @@
     { key: "ableton", name: "Ableton Live", icon: "ableton.png" },
     { key: "notes", name: "Notes", icon: "notes.png" },
     { key: "spotify", name: "Spotify", icon: "spotify.png" },
+    { key: "flstudio", name: "FL Studio", icon: "i-created-a-macos-version-of-the-fl-studio-icon-for-mac-v0-63je10rj3ywd1.webp" },
+    { key: "whatsapp", name: "WhatsApp", icon: "whatsapp-ios-app-light.png" },
     { sep: true },
     { key: "trash", name: "Trash", icon: "trash.png" },
   ];
