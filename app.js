@@ -1095,6 +1095,30 @@
     }
   });
 
+  /* ---------- Spotify widget drag ---------- */
+  const spotifyWidget = document.getElementById("spotify-widget");
+  const spotifyHandle = spotifyWidget?.querySelector(".spotify-handle");
+  if (spotifyHandle) {
+    spotifyHandle.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const p0 = toStage(e.clientX, e.clientY);
+      const ox = parseFloat(spotifyWidget.style.left) || spotifyWidget.offsetLeft;
+      const oy = parseFloat(spotifyWidget.style.top) || spotifyWidget.offsetTop;
+      function move(ev) {
+        const p = toStage(ev.clientX, ev.clientY);
+        spotifyWidget.style.left = Math.max(0, ox + p.x - p0.x) + "px";
+        spotifyWidget.style.top = Math.max(32, oy + p.y - p0.y) + "px";
+      }
+      function up() {
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", up);
+      }
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", up);
+    });
+  }
+
   /* ---------- Init ---------- */
   buildDock();
   buildDesktopIcons();
