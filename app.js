@@ -2,6 +2,7 @@
 (() => {
   "use strict";
 
+  const R2_BASE = "https://pub-27918abc0811493eacde574582dde648.r2.dev";
   const stage = document.getElementById("stage");
   const windowsLayer = document.getElementById("windows");
   const dockEl = document.getElementById("dock");
@@ -284,16 +285,18 @@
   /* ---------- Folder / Finder ---------- */
   const _finderHistory = new Map();
 
-  // Real audio files living in ./songs (name shown = file name).
+  // Real audio files hosted on Cloudflare R2 (name shown = file name).
   const MUSIC_SONGS = [
-    "CHRIS REDD - PALOMA MAMI [RBCK] MASTER V4 FINAL.wav",
-    "MASTER_ ALGO + PA TI_KAPAC x JEEICO x GZVZ.wav",
-    "MASTER_JACK_RAINAO.wav",
-    "V27_M&M_Ritual_88_Am_Distribuir.wav",
-  ].map((f) => ({ name: f, file: "songs/" + f }));
+    "ALGO + PA TI_MASTER_MP31.mp3",
+    "GIRASOLES_LUXXO_MP31.mp3",
+    "PALOMA MAMI_MASTER_MP31.mp3",
+    "RAINAO_MASTER_MP31.mp3",
+    "RITUAL_MASTER_MP31.mp3",
+  ].map((f) => ({ name: f, file: R2_BASE + "/songs/" + f }));
 
   const KITS_FILES = [
-    { name: "RAMOS DRUMKIT.zip", file: "kits/RAMOS DRUMKIT.zip" },
+    { name: "RAMOS DRUMKIT.zip", file: R2_BASE + "/kits/RAMOS DRUMKIT.zip" },
+    { name: "@AZTEK.ALS_DRUMKIT_SUNFLOWER_2.zip", file: R2_BASE + "/kits/%40AZTEK.ALS_DRUMKIT_SUNFLOWER_2.zip" },
   ];
 
   const FOLDERS = {
