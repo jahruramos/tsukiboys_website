@@ -930,10 +930,10 @@
 
   /* ---------- Desktop icons ---------- */
   const DESK_ICONS = [
-    { key: "tsukiboys", label: "TSUKIBOYZ", x: 1760, y: 116 },
-    { key: "eventos", label: "EVENTOS", x: 1760, y: 234 },
-    { key: "music", label: "MUSIC", x: 1760, y: 353 },
-    { key: "kits", label: "KITS GANG", x: 1760, y: 470 },
+    { key: "tsukiboys", label: "TSUKIBOYZ", right: 76, y: 116 },
+    { key: "eventos", label: "EVENTOS", right: 76, y: 234 },
+    { key: "music", label: "MUSIC", right: 76, y: 353 },
+    { key: "kits", label: "KITS GANG", right: 76, y: 470 },
   ];
 
   // Tracks the last-selected item so Space (Quick Look) knows what to open.
@@ -954,8 +954,16 @@
       el.classList.add("selected");
       quickLook = { kind: "folder", key };
       const p0 = toStage(e.clientX, e.clientY);
-      const ox = parseFloat(el.style.left);
-      const oy = parseFloat(el.style.top);
+      // Convert right-based positioning to left on first drag
+      let ox, oy;
+      if (el.style.right && !el.style.left) {
+        ox = window.innerWidth - parseFloat(el.style.right) - el.offsetWidth;
+        el.style.left = ox + "px";
+        el.style.right = "auto";
+      } else {
+        ox = parseFloat(el.style.left);
+      }
+      oy = parseFloat(el.style.top);
       let dragging = false;
       function move(ev) {
         const p = toStage(ev.clientX, ev.clientY);
@@ -986,7 +994,7 @@
     DESK_ICONS.forEach((d) => {
       const el = document.createElement("div");
       el.className = "desk-icon";
-      el.style.left = d.x + "px";
+      el.style.right = d.right + "px";
       el.style.top = d.y + "px";
       el.innerHTML = `<img src="assets/folder.png" alt="" draggable="false" /><span>${d.label}</span>`;
       el.addEventListener("dblclick", () => { playClick(); openDeskFolder(d.key); });
