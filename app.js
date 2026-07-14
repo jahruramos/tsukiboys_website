@@ -8,7 +8,7 @@
   const dropdown = document.getElementById("menu-dropdown");
 
   /* ---------- UI click sound ---------- */
-  const _clickAudio = new Audio("assets/matthewvakaliuk73627-mouse-click-290204.mp3");
+  const _clickAudio = new Audio("assets/universfield-computer-mouse-click-02-383961.mp3");
   function playClick() {
     try {
       _clickAudio.currentTime = 0;
