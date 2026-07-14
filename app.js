@@ -292,10 +292,15 @@
     "V27_M&M_Ritual_88_Am_Distribuir.wav",
   ].map((f) => ({ name: f, file: "songs/" + f }));
 
+  const KITS_FILES = [
+    { name: "RAMOS DRUMKIT.zip", file: "kits/RAMOS DRUMKIT.zip" },
+  ];
+
   const FOLDERS = {
     tsukiboys: { label: "Tsukiboys", files: [] },
     eventos: { label: "Eventos", files: [] },
     music: { label: "Music", files: MUSIC_SONGS },
+    kits: { label: "KITS GANG", files: KITS_FILES },
   };
 
   const esc = (s) =>
@@ -307,11 +312,14 @@
       return `<div class="app-body"><p>Carpeta vacía</p>
         <div class="placeholder-tag">Contenido próximamente</div></div>`;
     }
-    return `<div class="file-grid">` + files.map((f, i) => `
-      <div class="file-item" data-idx="${i}" title="${esc(f.name)}">
-        <div class="ficon"><img src="assets/wav-icon.png" alt="" /></div>
+    return `<div class="file-grid">` + files.map((f, i) => {
+      const isZip = /\.zip$/i.test(f.file);
+      const icon = isZip ? "assets/zip-icon.png" : "assets/wav-icon.png";
+      return `<div class="file-item${isZip ? " file-zip" : ""}" data-idx="${i}" title="${esc(f.name)}">
+        <div class="ficon"><img src="${icon}" alt="" /></div>
         <span>${esc(f.name)}</span>
-      </div>`).join("") + `</div>`;
+      </div>`;
+    }).join("") + `</div>`;
   }
 
   function fileListHTML(files) {
@@ -438,21 +446,35 @@
     navBtns[1].disabled = hist.idx >= hist.stack.length - 1;
   }
 
+  function downloadFile(filePath) {
+    const a = document.createElement("a");
+    a.href = encodeURI(filePath);
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   function wireFinder(el) {
     const files = FOLDERS[el.dataset.folder].files;
     el.querySelectorAll(".sb-item[data-folder]").forEach((it) => {
       it.onclick = () => setFinderFolder(el, it.dataset.folder);
     });
     el.querySelectorAll(".file-item").forEach((it) => {
-      const song = files[it.dataset.idx];
+      const file = files[it.dataset.idx];
+      const isZip = /\.zip$/i.test(file.file);
       it.onclick = (e) => {
         e.stopPropagation();
         document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
         document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
         it.classList.add("selected");
-        quickLook = { kind: "song", song };
+        if (!isZip) quickLook = { kind: "song", song: file };
       };
-      it.ondblclick = () => { playClick(); openPlayer(song); };
+      it.ondblclick = () => {
+        playClick();
+        if (isZip) downloadFile(file.file);
+        else openPlayer(file);
+      };
     });
     wireViewButtons(el);
     wireNavButtons(el);
@@ -898,6 +920,7 @@
     { key: "tsukiboys", label: "TSUKIBOYZ", x: 122, y: 116 },
     { key: "eventos", label: "EVENTOS", x: 122, y: 234 },
     { key: "music", label: "MUSIC", x: 122, y: 353 },
+    { key: "kits", label: "KITS GANG", x: 122, y: 470 },
   ];
 
   // Tracks the last-selected item so Space (Quick Look) knows what to open.
