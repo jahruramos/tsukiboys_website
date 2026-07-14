@@ -7,6 +7,25 @@
   const dockEl = document.getElementById("dock");
   const dropdown = document.getElementById("menu-dropdown");
 
+  /* ---------- UI click sound (Web Audio API) ---------- */
+  let _clickCtx = null;
+  function playClick() {
+    try {
+      if (!_clickCtx) _clickCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const t = _clickCtx.currentTime;
+      const osc = _clickCtx.createOscillator();
+      const gain = _clickCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1800, t);
+      osc.frequency.exponentialRampToValueAtTime(900, t + 0.03);
+      gain.gain.setValueAtTime(0.15, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+      osc.connect(gain).connect(_clickCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.05);
+    } catch {}
+  }
+
   // Stage fills the viewport 1:1 — no scaling, no distortion. Coordinates are
   // plain viewport pixels. Helpers to center windows in the current viewport.
   const cx = (w) => Math.max(20, Math.round((window.innerWidth - w) / 2));
@@ -134,14 +153,17 @@
     // Traffic lights
     el.querySelector(".tl-close").addEventListener("click", (e) => {
       e.stopPropagation();
+      playClick();
       closeWindow(id);
     });
     el.querySelector(".tl-min").addEventListener("click", (e) => {
       e.stopPropagation();
+      playClick();
       minimizeWindow(id);
     });
     el.querySelector(".tl-max").addEventListener("click", (e) => {
       e.stopPropagation();
+      playClick();
       toggleMaximize(id);
     });
 
@@ -366,12 +388,13 @@
   function wireFinder(el) {
     const files = FOLDERS[el.dataset.folder].files;
     el.querySelectorAll(".sb-item[data-folder]").forEach((it) => {
-      it.onclick = () => setFinderFolder(el, it.dataset.folder);
+      it.onclick = () => { playClick(); setFinderFolder(el, it.dataset.folder); };
     });
     el.querySelectorAll(".file-item").forEach((it) => {
       const song = files[it.dataset.idx];
       it.onclick = (e) => {
         e.stopPropagation();
+        playClick();
         document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
         document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
         it.classList.add("selected");
@@ -578,7 +601,7 @@
       }
     }
 
-    btn.addEventListener("click", tryUnlock);
+    btn.addEventListener("click", () => { playClick(); tryUnlock(); });
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
     input.focus();
   }
@@ -589,6 +612,7 @@
       const song = files[it.dataset.idx];
       it.onclick = (e) => {
         e.stopPropagation();
+        playClick();
         document.querySelectorAll(".desk-icon.selected").forEach((o) => o.classList.remove("selected"));
         document.querySelectorAll(".file-item.selected").forEach((o) => o.classList.remove("selected"));
         it.classList.add("selected");
@@ -628,7 +652,7 @@
         <img src="assets/${d.icon}" alt="${d.name}" />
         <span class="dot"></span>`;
       item.addEventListener("mousedown", (e) => e.stopPropagation());
-      item.addEventListener("click", () => launchFromDock(d.key, item));
+      item.addEventListener("click", () => { playClick(); launchFromDock(d.key, item); });
       dockEl.appendChild(item);
     });
   }
@@ -733,7 +757,7 @@
       el.style.left = d.x + "px";
       el.style.top = d.y + "px";
       el.innerHTML = `<img src="assets/folder.png" alt="" draggable="false" /><span>${d.label}</span>`;
-      el.addEventListener("dblclick", () => openDeskFolder(d.key));
+      el.addEventListener("dblclick", () => { playClick(); openDeskFolder(d.key); });
       makeDeskDraggable(el, d.key);
       layer.appendChild(el);
     });
@@ -807,6 +831,7 @@
   document.querySelectorAll(".mb-menu").forEach((m) => {
     m.addEventListener("click", (e) => {
       e.stopPropagation();
+      playClick();
       const key = m.dataset.menu;
       if (openMenu === m) { closeMenu(); return; }
       closeMenu();
