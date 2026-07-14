@@ -729,7 +729,7 @@
     discord: { name: "Discord", icon: "discord.png", desc: "Únete al servidor de la comunidad.<br><a href='https://discord.gg/P4DCdGCcVt' target='_blank' style='color:#3b6ff5'>https://discord.gg/P4DCdGCcVt</a>" },
     ableton: { name: "Ableton Live", icon: "ableton.png", desc: "Sesiones y proyectos de producción." },
     notes:   { name: "Notes",   icon: "notes.png",   desc: "Notas y letras." },
-    spotify: { name: "Spotify", icon: "spotify.png", desc: "Escucha nuestras producciones.<br><a href='https://sptfy.com/QhZS~s' target='_blank' style='color:#3b6ff5'>https://sptfy.com/QhZS~s</a>" },
+    spotify: { name: "Spotify", icon: "spotify.png", desc: "Escucha nuestras producciones.<br><a href='https://open.spotify.com/playlist/6JuN8VSuQIBpcRzFZKrK5r?si=48df66c691e8448d' target='_blank' style='color:#3b6ff5'>https://open.spotify.com/playlist/6JuN8VSuQIBpcRzFZKrK5r?si=48df66c691e8448d</a>" },
     flstudio: { name: "FL Studio", icon: "i-created-a-macos-version-of-the-fl-studio-icon-for-mac-v0-63je10rj3ywd1.webp", desc: "Producción musical y sesiones." },
     whatsapp: { name: "WhatsApp", icon: "whatsapp-ios-app-light.png", desc: "Contacto directo con TSUKIBOYS." },
     trash:   { name: "Trash",   icon: "trash.png",   desc: "La papelera está vacía." },
@@ -740,7 +740,7 @@
     if (key === "trash") return openTrash();
     if (key === "whatsapp") { window.open("https://chat.whatsapp.com/LvqLlXbyOdx5hyQyVmozp0", "_blank"); return; }
     if (key === "discord") { window.open("https://discord.gg/P4DCdGCcVt", "_blank"); return; }
-    if (key === "spotify") { window.open("https://sptfy.com/QhZS~s", "_blank"); return; }
+    if (key === "spotify") { window.open("https://open.spotify.com/playlist/6JuN8VSuQIBpcRzFZKrK5r?si=48df66c691e8448d", "_blank"); return; }
     const m = APP_META[key];
     if (!m) return;
     const id = "app-" + key + "-" + (++winCounter);
