@@ -937,9 +937,9 @@
   ];
 
   const DESKTOP_FILES = [
-    { name: "TAG_TSBOYZ_83", file: "assets/desktop-tsuki/Copia de TAG_TSBOYZ_83.wav", kind: "audio" },
+    { name: "TAG_TSB_83", file: "assets/desktop-tsuki/TAG_TSB_83.wav", kind: "audio" },
     { name: "TSB_COVER_VOL2", file: "assets/desktop-tsuki/TSB_COVER_VOL2.png", kind: "image" },
-    { name: "WhatsApp Image", file: "assets/desktop-tsuki/WhatsApp Image 2026-07-14 at 18.18.58.jpeg", kind: "image" },
+    { name: "TSUKIGANG-RANGERS", file: "assets/desktop-tsuki/TSUKIGANG-RANGERS.jpeg", kind: "image" },
   ];
 
   // Tracks the last-selected item so Space (Quick Look) knows what to open.
