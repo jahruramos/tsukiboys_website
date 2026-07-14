@@ -738,6 +738,7 @@
   function openApp(key) {
     if (key === "finder") return openFinder();
     if (key === "trash") return openTrash();
+    if (key === "whatsapp") { window.open("https://chat.whatsapp.com/LvqLlXbyOdx5hyQyVmozp0", "_blank"); return; }
     const m = APP_META[key];
     if (!m) return;
     const id = "app-" + key + "-" + (++winCounter);
