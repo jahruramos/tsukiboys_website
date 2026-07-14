@@ -91,7 +91,7 @@
           <button class="tb-btn" type="button">${TB_ICONS.share}</button>
           <button class="tb-btn" type="button">${TB_ICONS.tag}</button>
           <button class="tb-btn" type="button">${TB_ICONS.more}</button>
-          <button class="tb-btn tb-search" type="button"><img src="assets/search.svg" alt="" /></button>
+          <button class="tb-btn tb-search" type="button"><img src="assets/magnifyingglass.svg" alt="" /></button>
         </div>
       </div>
       <div class="pathbar">
@@ -327,7 +327,13 @@
       return `<div class="app-body"><p>Carpeta vacía</p>
         <div class="placeholder-tag">Contenido próximamente</div></div>`;
     }
-    const kindLabel = (f) => f.file.endsWith(".mp3") ? "Audio MP3" : "Audio WAV";
+    const kindLabel = (f) => {
+      const ext = f.file.split(".").pop().toLowerCase();
+      if (ext === "zip") return "ZIP Archive";
+      if (ext === "mp3") return "Audio MP3";
+      return "Audio WAV";
+    };
+    const fileIcon = (f) => /\.zip$/i.test(f.file) ? "assets/zip-icon.png" : "assets/wav-icon.png";
     return `
       <div class="file-list">
         <div class="fl-header">
@@ -337,7 +343,7 @@
         ${files.map((f, i) => `
           <div class="file-item file-list-row" data-idx="${i}">
             <div class="fl-col fl-col-name">
-              <img class="fl-icon" src="assets/wav-icon.png" alt="" />
+              <img class="fl-icon" src="${fileIcon(f)}" alt="" />
               <span>${esc(f.name)}</span>
             </div>
             <div class="fl-col fl-col-kind">${kindLabel(f)}</div>

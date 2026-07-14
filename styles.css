@@ -118,24 +118,14 @@ body {
   filter: brightness(0) invert(1);
   opacity: 0.92;
   flex: none;
+  height: 14px;
+  width: auto;
 }
-/* Figma status SVGs use preserveAspectRatio="none"; set explicit w+h at
-   each viewBox aspect so they render crisp instead of stretching to 300x150. */
 .mb-icon img[alt="Battery"] {
   width: 22px;
-  height: 13px;
-}
-.mb-icon img[alt="Control Center"] {
-  width: 15px;
-  height: 16px;
-}
-.mb-icon img[alt="Spotlight"] {
-  width: 16px;
-  height: 16px;
 }
 .mb-icon img[alt="Wi-Fi"] {
-  width: 19px;
-  height: 15px;
+  width: 17px;
 }
 .mb-item {
   height: 22px;
