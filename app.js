@@ -515,14 +515,17 @@
           </div>
           <div class="ql-controls">
             <button class="ql-btn ql-back" title="-15s">
-              <span>↺</span><i>15</i></button>
-            <button class="ql-btn ql-play" title="Play/Pause">▶</button>
+              <img class="ql-icon" src="assets/15.arrow.trianglehead.counterclockwise.svg" alt="" /></button>
+            <button class="ql-btn ql-play" title="Play/Pause"><img class="ql-icon ql-icon-play" src="assets/play.fill.svg" alt="" /></button>
             <button class="ql-btn ql-fwd" title="+15s">
-              <span>↻</span><i>15</i></button>
+              <img class="ql-icon" src="assets/15.arrow.trianglehead.clockwise.svg" alt="" /></button>
             <span class="ql-cur">0:00</span>
             <input type="range" class="ql-seek" min="0" max="1000" value="0" />
             <span class="ql-tot">0:00</span>
-            <span class="ql-vol">🔊</span>
+            <span class="ql-vol-wrap">
+              <span class="ql-vol"><img class="ql-icon" src="assets/speaker.wave.2.fill.svg" alt="" /></span>
+              <input type="range" class="ql-vol-slider" min="0" max="100" value="70" />
+            </span>
           </div>
           <audio class="ql-audio" src="${src}" preload="metadata"></audio>
         </div>`,
@@ -544,12 +547,18 @@
       if (scrubbing) return;
       curEl.textContent = fmtTime(audio.currentTime);
       if (audio.duration) seek.value = (audio.currentTime / audio.duration) * 1000;
+      updateNpSeek();
     });
-    audio.addEventListener("ended", () => (playBtn.textContent = "▶"));
+    audio.addEventListener("ended", () => {
+      playBtn.querySelector(".ql-icon-play").src = "assets/play.fill.svg";
+      hideNowPlaying();
+    });
 
     playBtn.addEventListener("click", () => {
-      if (audio.paused) { audio.play(); playBtn.textContent = "⏸"; }
-      else { audio.pause(); playBtn.textContent = "▶"; }
+      const icon = playBtn.querySelector(".ql-icon-play");
+      if (audio.paused) { audio.play(); icon.src = "assets/pause.fill.svg"; showNowPlaying(audio, song.name); }
+      else { audio.pause(); icon.src = "assets/play.fill.svg"; }
+      syncNpPauseIcon();
     });
     el.querySelector(".ql-back").addEventListener("click", () => {
       audio.currentTime = Math.max(0, audio.currentTime - 15);
@@ -565,20 +574,123 @@
       if (audio.duration) audio.currentTime = (seek.value / 1000) * audio.duration;
       scrubbing = false;
     });
-    el.querySelector(".ql-vol").addEventListener("click", (ev) => {
+    const volSlider = el.querySelector(".ql-vol-slider");
+    const volIcon = el.querySelector(".ql-vol img");
+    const SPEAKER_ICONS = [
+      { max: 0, src: "assets/speaker.slash.fill.svg" },
+      { max: 33, src: "assets/speaker.fill.svg" },
+      { max: 66, src: "assets/speaker.wave.1.fill.svg" },
+      { max: 100, src: "assets/speaker.wave.3.fill.svg" },
+    ];
+    function updateSpeakerIcon(v) {
+      const icon = SPEAKER_ICONS.find((s) => v <= s.max) || SPEAKER_ICONS[SPEAKER_ICONS.length - 1];
+      volIcon.src = icon.src;
+    }
+    audio.volume = volSlider.value / 100;
+    volSlider.addEventListener("input", () => {
+      audio.volume = volSlider.value / 100;
+      audio.muted = false;
+      updateSpeakerIcon(Number(volSlider.value));
+    });
+    let savedVol = Number(volSlider.value);
+    el.querySelector(".ql-vol").addEventListener("click", () => {
       audio.muted = !audio.muted;
-      ev.currentTarget.textContent = audio.muted ? "🔇" : "🔊";
+      if (audio.muted) {
+        savedVol = Number(volSlider.value);
+        volSlider.value = 0;
+        volIcon.src = "assets/speaker.slash.fill.svg";
+      } else {
+        volSlider.value = savedVol;
+        audio.volume = savedVol / 100;
+        updateSpeakerIcon(savedVol);
+      }
     });
 
     // Stop playback when the window closes.
     el.querySelector(".tl-close").addEventListener("click", () => {
       audio.pause();
       audio.src = "";
+      hideNowPlaying();
     });
 
     // Autoplay on open (like pressing Space / double-click in macOS Quick Look).
-    audio.play().then(() => (playBtn.textContent = "⏸")).catch(() => {});
+    audio.play().then(() => {
+      playBtn.querySelector(".ql-icon-play").src = "assets/pause.fill.svg";
+      showNowPlaying(audio, song.name);
+    }).catch(() => {});
   }
+
+  /* ---------- Now Playing (menu bar) ---------- */
+  const npIcon = document.getElementById("now-playing");
+  const npPopup = document.getElementById("now-popup");
+  const npSong = npPopup.querySelector(".np-song");
+  const npPauseBtn = npPopup.querySelector(".np-pause");
+  const npForwardBtn = npPopup.querySelector(".np-forward");
+  const npSeek = npPopup.querySelector(".np-seek");
+  let _npAudio = null;
+  let _npSongName = "";
+  let _npScrubbing = false;
+
+  function showNowPlaying(audio, songName) {
+    _npAudio = audio;
+    _npSongName = songName;
+    npIcon.classList.remove("hidden");
+    npSong.textContent = songName;
+  }
+
+  function hideNowPlaying() {
+    _npAudio = null;
+    npIcon.classList.add("hidden");
+    npPopup.classList.add("hidden");
+  }
+
+  function syncNpPauseIcon() {
+    if (!_npAudio) return;
+    const icon = npPauseBtn.querySelector("img");
+    icon.src = _npAudio.paused ? "assets/play.fill.svg" : "assets/pause.fill.svg";
+  }
+
+  function updateNpSeek() {
+    if (!_npAudio || _npScrubbing) return;
+    if (_npAudio.duration) npSeek.value = (_npAudio.currentTime / _npAudio.duration) * 1000;
+  }
+
+  npIcon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    npPopup.classList.toggle("hidden");
+    if (!npPopup.classList.contains("hidden")) {
+      npSong.textContent = _npSongName;
+      syncNpPauseIcon();
+      if (_npAudio && _npAudio.duration) npSeek.value = (_npAudio.currentTime / _npAudio.duration) * 1000;
+    }
+  });
+
+  npPauseBtn.addEventListener("click", () => {
+    if (!_npAudio) return;
+    if (_npAudio.paused) _npAudio.play();
+    else _npAudio.pause();
+    syncNpPauseIcon();
+  });
+
+  npForwardBtn.addEventListener("click", () => {
+    if (!_npAudio) return;
+    _npAudio.currentTime = Math.min(_npAudio.duration || 0, _npAudio.currentTime + 15);
+  });
+
+  npSeek.addEventListener("input", () => {
+    _npScrubbing = true;
+  });
+
+  npSeek.addEventListener("change", () => {
+    if (_npAudio && _npAudio.duration) _npAudio.currentTime = (npSeek.value / 1000) * _npAudio.duration;
+    _npScrubbing = false;
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!npPopup.contains(e.target) && !npIcon.contains(e.target)) {
+      npPopup.classList.add("hidden");
+    }
+  });
 
   /* ---------- Generic app windows ---------- */
   const APP_META = {

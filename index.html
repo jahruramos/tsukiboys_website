@@ -28,12 +28,30 @@
         <div class="mb-menu" data-menu="help">Help</div>
       </div>
       <div class="mb-right">
+        <div id="now-playing" class="mb-icon hidden">
+          <img src="assets/play.circle.svg" alt="Now Playing" draggable="false" />
+        </div>
         <div class="mb-icon"><img src="assets/battery.svg" alt="Battery" draggable="false" /></div>
         <div class="mb-icon mb-control"><img src="assets/control.svg" alt="Control Center" draggable="false" /></div>
         <div class="mb-icon"><img src="assets/search.svg" alt="Spotlight" draggable="false" /></div>
         <div class="mb-icon"><img src="assets/wifi.svg" alt="Wi-Fi" draggable="false" /></div>
         <div class="mb-item" id="mb-date">Mon Jun 22</div>
         <div class="mb-item" id="mb-clock">9:41 AM</div>
+      </div>
+    </div>
+
+    <!-- ===== Now Playing popup ===== -->
+    <div id="now-popup" class="hidden">
+      <div class="np-row">
+        <div class="np-art"><img src="assets/wav-icon.png" alt="" /></div>
+        <div class="np-info">
+          <div class="np-song"></div>
+          <div class="np-controls">
+            <input type="range" class="np-seek" min="0" max="1000" value="0" />
+            <button class="np-btn np-pause" type="button"><img class="ql-icon" src="assets/pause.fill.svg" alt="" /></button>
+            <button class="np-btn np-forward" type="button"><img class="ql-icon" src="assets/forward.fill.svg" alt="" /></button>
+          </div>
+        </div>
       </div>
     </div>
 
