@@ -741,6 +741,7 @@
     if (key === "whatsapp") { window.open("https://chat.whatsapp.com/LvqLlXbyOdx5hyQyVmozp0", "_blank"); return; }
     if (key === "discord") { window.open("https://discord.gg/P4DCdGCcVt", "_blank"); return; }
     if (key === "spotify") { window.open("https://open.spotify.com/playlist/6JuN8VSuQIBpcRzFZKrK5r?si=48df66c691e8448d", "_blank"); return; }
+    if (key === "mail") { window.location.href = "mailto:contactsukiboyz@gmail.com"; return; }
     const m = APP_META[key];
     if (!m) return;
     const id = "app-" + key + "-" + (++winCounter);
