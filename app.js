@@ -11,6 +11,13 @@
   /* ---------- Intro animation ---------- */
   setTimeout(() => stage.classList.add("intro-ready"), 200);
 
+  /* ---------- Startup sound ---------- */
+  const _startAudio = new Audio("assets/desktop-tsuki/TAG_TSB_83.wav");
+  _startAudio.play().catch(() => {
+    const resume = () => { _startAudio.play().catch(() => {}); document.removeEventListener("click", resume); };
+    document.addEventListener("click", resume);
+  });
+
   /* ---------- UI click sound ---------- */
   const _clickAudio = new Audio("assets/universfield-computer-mouse-click-02-383961.mp3");
   function playClick() {
