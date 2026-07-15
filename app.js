@@ -11,12 +11,30 @@
   /* ---------- Intro animation ---------- */
   setTimeout(() => stage.classList.add("intro-ready"), 200);
 
-  /* ---------- Startup sound ---------- */
-  const _startAudio = new Audio("assets/desktop-tsuki/TAG_TSB_83.wav");
-  _startAudio.play().catch(() => {
-    const resume = () => { _startAudio.play().catch(() => {}); document.removeEventListener("click", resume); };
-    document.addEventListener("click", resume);
-  });
+  /* ---------- Startup sound (Web Audio API — plays on first user interaction) ---------- */
+  {
+    const _startUrl = "assets/desktop-tsuki/TAG_TSB_83.wav";
+    let _startBuffer = null;
+    let _startPlayed = false;
+    const _actx = new (window.AudioContext || window.webkitAudioContext)();
+
+    fetch(_startUrl).then(r => r.arrayBuffer()).then(buf => {
+      return _actx.decodeAudioData(buf);
+    }).then(decoded => {
+      _startBuffer = decoded;
+      function playStartup() {
+        if (_startPlayed || !_startBuffer) return;
+        _startPlayed = true;
+        document.removeEventListener("click", playStartup);
+        const src = _actx.createBufferSource();
+        src.buffer = _startBuffer;
+        src.connect(_actx.destination);
+        src.start(0);
+      }
+      playStartup();
+      document.addEventListener("click", playStartup);
+    }).catch(() => {});
+  }
 
   /* ---------- UI click sound ---------- */
   const _clickAudio = new Audio("assets/universfield-computer-mouse-click-02-383961.mp3");
