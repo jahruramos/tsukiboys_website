@@ -8,6 +8,9 @@
   const dockEl = document.getElementById("dock");
   const dropdown = document.getElementById("menu-dropdown");
 
+  /* ---------- Intro animation ---------- */
+  setTimeout(() => stage.classList.add("intro-ready"), 200);
+
   /* ---------- UI click sound ---------- */
   const _clickAudio = new Audio("assets/universfield-computer-mouse-click-02-383961.mp3");
   function playClick() {

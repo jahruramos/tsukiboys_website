@@ -44,6 +44,35 @@ body {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
+  transform: scale(1.3);
+  filter: blur(30px);
+  opacity: 0;
+  transition: transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+              filter 1.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity 0.8s ease-out;
+}
+
+#stage.intro-ready #wallpaper {
+  transform: scale(1);
+  filter: blur(0);
+  opacity: 1;
+}
+
+/* UI hidden until intro completes */
+#stage:not(.intro-ready) #menubar,
+#stage:not(.intro-ready) #desktop-icons,
+#stage:not(.intro-ready) #dock-wrap,
+#stage:not(.intro-ready) #windows {
+  opacity: 0;
+  transition: opacity 0.5s ease-out 1.2s;
+}
+
+#stage.intro-ready #menubar,
+#stage.intro-ready #desktop-icons,
+#stage.intro-ready #dock-wrap,
+#stage.intro-ready #windows {
+  opacity: 1;
+  transition: opacity 0.5s ease-out 1.2s;
 }
 
 /* ===== Menu Bar ===== */
