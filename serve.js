@@ -14,8 +14,9 @@ const sessions = new Set();
 const TYPES = {
   ".html": "text/html", ".css": "text/css", ".js": "text/javascript",
   ".png": "image/png", ".svg": "image/svg+xml", ".json": "application/json",
-  ".gif": "image/gif", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+  ".gif": "image/gif", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
   ".wav": "audio/wav", ".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".ogg": "audio/ogg",
+  ".mov": "video/quicktime", ".mp4": "video/mp4", ".webm": "video/webm",
 };
 
 function parseCookies(header) {
