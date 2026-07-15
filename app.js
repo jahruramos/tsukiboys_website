@@ -10,6 +10,7 @@
 
   /* ---------- Intro animation + sound ---------- */
   const _introAudio = new Audio("assets/desktop-tsuki/TAG_TSB_83.wav");
+  _introAudio.volume = 0.3;
   setTimeout(() => {
     stage.classList.add("intro-ready");
     _introAudio.play().catch(() => {});
